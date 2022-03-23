@@ -1,4 +1,5 @@
 // https://blog.dominikwawrzynczak.pl/2020/08/oauth-with-nestjs-application-sign-in-with-google/
+// https://medium.com/@nielsmeima/auth-in-nest-js-and-angular-463525b6e071
 
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
@@ -26,7 +27,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       email: emails[0].value,
       firstName: name.givenName,
       lastName: name.familyName,
-      accessToken,
+      // accessToken,
+      // refreshToken,
     };
     done(null, user);
   }

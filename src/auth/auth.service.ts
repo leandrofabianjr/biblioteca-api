@@ -14,13 +14,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<User | null> {
-    const user = await this.usersService.findOne(username);
-    if (user && user.password === password) return user;
-    return null;
-  }
-
-  async login(user: User) {
+  async token(user: User) {
     return {
       access_token: this.jwtService.sign({
         sub: user.id,
@@ -32,19 +26,6 @@ export class AuthService {
   async signInWithGoogle(data) {
     if (!data.user) throw new BadRequestException();
 
-    // let user = (
-    //   await this.usersService.findBy({ where: [{ googleId: data.user.id }] })
-    // )[0];
-    // if (user) return this.login(user);
-
-    // user = (
-    //   await this.usersService.findBy({ where: [{ email: data.user.email }] })
-    // )[0];
-    // if (user)
-    //   throw new ForbiddenException(
-    //     "User already exists, but Google account was not connected to user's account",
-    //   );
-
     try {
       const newUser = {
         firstName: data.user.firstName,
@@ -54,9 +35,14 @@ export class AuthService {
       };
 
       // await this.usersService.store(newUser);
-      return this.login(newUser);
+      return this.token(newUser);
     } catch (e) {
       throw new Error(e);
     }
+  }
+
+  async getUserData(user: any) {
+    const token = await this.token(user);
+    return { user, token };
   }
 }
