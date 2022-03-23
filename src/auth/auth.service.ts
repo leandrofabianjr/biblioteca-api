@@ -1,11 +1,8 @@
-import {
-  Injectable,
-  BadRequestException,
-  // ForbiddenException,
-} from '@nestjs/common';
-import { User, UsersService } from 'src/users/users.service';
-// import { User } from 'src/users/user.entity';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { User } from 'src/users/user.entity';
+import { CreateUserDto } from 'src/users/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,28 +14,28 @@ export class AuthService {
   async token(user: User) {
     return {
       access_token: this.jwtService.sign({
-        sub: user.id,
+        sub: user.uuid,
         email: user.email,
       }),
     };
   }
 
-  async signInWithGoogle(data) {
-    if (!data.user) throw new BadRequestException();
+  async signInWithGoogle(data: { user?: CreateUserDto }) {
+    const userData = data?.user;
 
-    try {
-      const newUser = {
-        firstName: data.user.firstName,
-        lastName: data.user.lastName,
-        email: data.user.email,
-        googleId: data.user.id,
-      };
+    if (!userData) throw new BadRequestException();
 
-      // await this.usersService.store(newUser);
-      return this.token(newUser);
-    } catch (e) {
-      throw new Error(e);
-    }
+    const user =
+      (await this.usersService.findOneByEmail(userData.email)) ?? new User();
+
+    user.email = userData.email;
+    user.google_uid = userData.google_uid;
+    user.name = userData.name;
+    user.profile_picture_url = userData.profile_picture_url;
+
+    await this.usersService.save(user);
+
+    return this.token(user);
   }
 
   async getUserData(user: any) {
