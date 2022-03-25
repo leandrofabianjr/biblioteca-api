@@ -1,3 +1,4 @@
+import { HttpException } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 
 interface ServiceExceptionContext {
@@ -5,12 +6,8 @@ interface ServiceExceptionContext {
   errors?: ValidationError[];
 }
 
-export class ServiceException extends Error {
-  constructor(private context: ServiceExceptionContext) {
-    super(context.message.toString());
-  }
-
-  getContext(): any {
-    return this.context;
+export class ServiceException extends HttpException {
+  constructor(context: ServiceExceptionContext) {
+    super(context, 400);
   }
 }

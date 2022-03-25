@@ -1,17 +1,24 @@
+import { UseFilters } from '@nestjs/common';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { isUUID, validate } from 'class-validator';
 import { DeepPartial, FindOptionsWhere, Raw, Repository } from 'typeorm';
 import { ServiceException } from '../exceptions/service.exception';
+import { ApiExceptionFilter } from '../filters/api-exception.filter';
 import { PaginatedResponse } from '../interfaces/paginated-response';
 import { PaginatedServiceFilters } from '../interfaces/paginated-service-filters';
 import { RepositoryEntity } from './repository-entity';
 
+@UseFilters(ApiExceptionFilter)
 export abstract class RepositoryService<
   T extends RepositoryEntity,
-  TDto extends object,
+  T_DTO extends object,
 > {
   constructor(protected repository: Repository<T>) {}
 
-  private async validateDto(dto: TDto): Promise<TDto> {
+  abstract dtoConstructor: ClassConstructor<T_DTO>;
+
+  private async validateDto(json: T_DTO): Promise<T_DTO> {
+    const dto = plainToInstance(this.dtoConstructor, json);
     const errors = await validate(dto);
 
     if (errors.length) {
@@ -38,13 +45,15 @@ export abstract class RepositoryService<
     return options;
   }
 
-  abstract buildPartial(dto: TDto): Promise<DeepPartial<T>>;
+  abstract buildPartial(dto: T_DTO): Promise<DeepPartial<T>>;
 
-  async validateBeforeCreate(dto: TDto): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async validateBeforeCreate(dto: T_DTO): Promise<string> {
     return null;
   }
 
-  async validateBeforeEdit(uuid: string, dto: TDto): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async validateBeforeEdit(uuid: string, dto: T_DTO): Promise<string> {
     return null;
   }
 
@@ -55,23 +64,16 @@ export abstract class RepositoryService<
     return this.repository.findOneBy({ uuid } as FindOptionsWhere<T>);
   }
 
-  filter(options?: PaginatedServiceFilters<T>): Promise<T[]> {
-    console.log(options);
-    options = this.buildOptionsToFilter(options);
-    console.log(options);
-    return this.repository.find(options);
-  }
-
-  async filterPaginated(
+  async filter(
     options?: PaginatedServiceFilters<T>,
   ): Promise<PaginatedResponse<T>> {
-    options = this.buildOptionsToFilter(options);
-    const [data, total] = await this.repository.findAndCount(options);
+    const opt = this.buildOptionsToFilter(options);
+    const [data, total] = await this.repository.findAndCount(opt);
     const res: PaginatedResponse<T> = {
       data,
       total,
-      limit: options?.take,
-      offset: options?.skip,
+      limit: opt?.take,
+      offset: opt?.skip,
     };
     return res;
   }
@@ -80,7 +82,7 @@ export abstract class RepositoryService<
     return this.repository.save(model as DeepPartial<T>)[0];
   }
 
-  async create(data: TDto): Promise<T> {
+  async create(data: T_DTO): Promise<T> {
     const dto = await this.validateDto(data);
 
     const message = await this.validateBeforeCreate(dto);
@@ -90,11 +92,10 @@ export abstract class RepositoryService<
 
     const model = await this.buildPartial(dto);
 
-    const entity = this.repository.create(model);
-    return this.repository.save(entity as DeepPartial<T>)[0];
+    return await this.repository.save(model);
   }
 
-  async edit(uuid: string, data: TDto) {
+  async edit(uuid: string, data: T_DTO) {
     const customer = await this.get(uuid);
 
     if (!customer) {

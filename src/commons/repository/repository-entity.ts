@@ -6,7 +6,7 @@ import {
 
 export class RepositoryEntity {
   @PrimaryGeneratedColumn('uuid')
-  uuid: number;
+  uuid: string;
 
   @CreateDateColumn()
   createdAt: Date;

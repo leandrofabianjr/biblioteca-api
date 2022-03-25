@@ -6,6 +6,8 @@ import { AuthModule } from './auth/auth.module';
 import { DB_CONFIG } from './db.config';
 import { UsersModule } from './users/users.module';
 import { CommonsModule } from './commons/commons.module';
+import { ItemsModule } from './items/items.module';
+import { LocationsModule } from './locations/locations.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { CommonsModule } from './commons/commons.module';
     TypeOrmModule.forRoot(DB_CONFIG),
     UsersModule,
     CommonsModule,
+    ItemsModule,
+    LocationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

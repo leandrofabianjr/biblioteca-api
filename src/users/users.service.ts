@@ -10,6 +10,9 @@ export class UsersService extends RepositoryService<User, CreateUserDto> {
   constructor(@InjectRepository(User) protected repository: Repository<User>) {
     super(repository);
   }
+
+  dtoConstructor = CreateUserDto;
+
   buildPartial(dto: CreateUserDto): Promise<User> {
     const user = new User();
     user.email = dto.email;
