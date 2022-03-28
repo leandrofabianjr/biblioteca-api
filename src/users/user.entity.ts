@@ -1,6 +1,7 @@
 import { RepositoryEntity } from 'src/commons/repository/repository-entity';
 import { Item } from 'src/items/item.entity';
 import { Location } from 'src/locations/location.entity';
+import { Publisher } from 'src/publishers/publisher.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 
 @Entity()
@@ -22,4 +23,7 @@ export class User extends RepositoryEntity {
 
   @OneToMany(() => Location, (location) => location.owner)
   locations: any;
+
+  @OneToMany(() => Publisher, (publisher) => publisher.owner)
+  publishers: any;
 }

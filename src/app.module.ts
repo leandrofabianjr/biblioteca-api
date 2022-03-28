@@ -5,18 +5,18 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { DB_CONFIG } from './db.config';
 import { UsersModule } from './users/users.module';
-import { CommonsModule } from './commons/commons.module';
 import { ItemsModule } from './items/items.module';
 import { LocationsModule } from './locations/locations.module';
+import { PublishersModule } from './publishers/publishers.module';
 
 @Module({
   imports: [
     AuthModule,
     TypeOrmModule.forRoot(DB_CONFIG),
     UsersModule,
-    CommonsModule,
     ItemsModule,
     LocationsModule,
+    PublishersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

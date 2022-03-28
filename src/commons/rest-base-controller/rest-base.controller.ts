@@ -1,23 +1,12 @@
-import {
-  Body,
-  Get,
-  HttpStatus,
-  Post,
-  Query,
-  Req,
-  Res,
-  UseFilters,
-} from '@nestjs/common';
+import { Body, Get, HttpStatus, Post, Query, Req, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { PaginatedServiceFilters } from 'src/commons/interfaces/paginated-service-filters';
 import { ParsePaginatedSearchPipePipe } from 'src/commons/pipes/parse-paginated-search-pipe.pipe';
 import { User } from 'src/users/user.entity';
-import { ApiExceptionFilter } from '../filters/api-exception.filter';
 import { RepositoryEntity } from '../repository/repository-entity';
 import { RepositoryDto } from '../repository/repository.dto';
 import { RepositoryService } from '../repository/repository.service';
 
-@UseFilters(ApiExceptionFilter)
 export abstract class RestBaseController<
   T extends RepositoryEntity,
   T_DTO extends RepositoryDto,
