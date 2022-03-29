@@ -1,5 +1,6 @@
 import {
   Body,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -24,6 +25,18 @@ export abstract class RestBaseController<
   T_DTO extends RepositoryDto,
 > {
   constructor(protected service: RepositoryService<T, T_DTO>) {}
+
+  private async checkIfExists(uuid: string, ownerUuid: string) {
+    const obj = await this.service.repository.findOneBy({
+      uuid,
+      ownerUuid,
+    } as FindOptionsWhere<T>);
+
+    if (!obj) {
+      const message = 'Este objeto não existe.';
+      throw new ServiceException({ message, status: HttpStatus.NOT_FOUND });
+    }
+  }
 
   @Get('')
   async fetch(
@@ -51,20 +64,15 @@ export abstract class RestBaseController<
     @Res() res: Response,
     @Req() req,
   ) {
-    const ownerUuid = req.user.uuid;
-    const obj = await this.service.repository.findOneBy({
-      uuid,
-      ownerUuid,
-    } as FindOptionsWhere<T>);
-
-    if (!obj) {
-      const message =
-        'O registro não existe. Ao invés de editar, crie um novo.';
-      throw new ServiceException({ message, status: HttpStatus.NOT_FOUND });
-    }
-
+    await this.checkIfExists(uuid, req.user.uuid);
     const updatedObj = await this.service.edit(uuid, body);
-
     res.status(HttpStatus.OK).json(updatedObj);
+  }
+
+  @Delete(':uuid')
+  async remove(@Param('uuid') uuid: string, @Res() res: Response, @Req() req) {
+    await this.checkIfExists(uuid, req.user.uuid);
+    const result = await this.service.remove(uuid);
+    res.status(HttpStatus.OK).json(result);
   }
 }

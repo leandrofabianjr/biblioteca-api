@@ -102,7 +102,8 @@ export abstract class RepositoryService<
     return this.repository.save(model);
   }
 
-  async remove(uuid: string): Promise<void> {
-    await this.repository.delete(uuid);
+  async remove(uuid: string): Promise<{ affected: number }> {
+    const result = await this.repository.softDelete(uuid);
+    return { affected: result.affected };
   }
 }
