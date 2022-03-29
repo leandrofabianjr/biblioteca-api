@@ -13,7 +13,7 @@ export abstract class RepositoryService<
   T extends RepositoryEntity,
   T_DTO extends object,
 > {
-  constructor(protected repository: Repository<T>) {}
+  constructor(public repository: Repository<T>) {}
 
   abstract dtoConstructor: ClassConstructor<T_DTO>;
 
@@ -41,20 +41,19 @@ export abstract class RepositoryService<
       });
       delete options.search;
     }
-    console.log(options);
     return options;
   }
 
   abstract buildPartial(dto: T_DTO): Promise<DeepPartial<T>>;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async validateBeforeCreate(dto: T_DTO): Promise<string> {
-    return null;
+  async validateBeforeCreate(dto: T_DTO) {
+    return;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async validateBeforeEdit(uuid: string, dto: T_DTO): Promise<string> {
-    return null;
+  async validateBeforeEdit(uuid: string, dto: T_DTO) {
+    return;
   }
 
   get(uuid: string): Promise<T> {
@@ -69,6 +68,7 @@ export abstract class RepositoryService<
   ): Promise<PaginatedResponse<T>> {
     const opt = this.buildOptionsToFilter(options);
     const [data, total] = await this.repository.findAndCount(opt);
+
     const res: PaginatedResponse<T> = {
       data,
       total,
@@ -85,10 +85,7 @@ export abstract class RepositoryService<
   async create(data: T_DTO): Promise<T> {
     const dto = await this.validateDto(data);
 
-    const message = await this.validateBeforeCreate(dto);
-    if (message) {
-      throw new ServiceException({ message });
-    }
+    await this.validateBeforeCreate(dto);
 
     const model = await this.buildPartial(dto);
 
@@ -96,25 +93,13 @@ export abstract class RepositoryService<
   }
 
   async edit(uuid: string, data: T_DTO) {
-    const customer = await this.get(uuid);
-
-    if (!customer) {
-      const message =
-        'O registro não existe. Ao invés de editar, crie um novo.';
-      throw new ServiceException({ message });
-    }
-
     const dto = await this.validateDto(data);
 
-    const message = await this.validateBeforeEdit(uuid, dto);
-    if (message) {
-      throw new ServiceException({ message });
-    }
+    await this.validateBeforeEdit(uuid, dto);
 
     const model = await this.buildPartial(dto);
-
-    const entity = this.repository.create({ uuid, ...model });
-    return this.repository.save(entity as DeepPartial<T>);
+    model.uuid = uuid;
+    return this.repository.save(model);
   }
 
   async remove(uuid: string): Promise<void> {

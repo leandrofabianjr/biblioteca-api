@@ -7,7 +7,7 @@ import { User } from './user.entity';
 
 @Injectable()
 export class UsersService extends RepositoryService<User, CreateUserDto> {
-  constructor(@InjectRepository(User) protected repository: Repository<User>) {
+  constructor(@InjectRepository(User) repository: Repository<User>) {
     super(repository);
   }
 

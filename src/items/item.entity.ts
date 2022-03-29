@@ -1,9 +1,9 @@
-import { RepositoryEntity } from 'src/commons/repository/repository-entity';
+import { RestEntity } from 'src/commons/rest-base-controller/rest-entity';
 import { User } from 'src/users/user.entity';
 import { Entity, Column, ManyToOne } from 'typeorm';
 
 @Entity()
-export class Item extends RepositoryEntity {
+export class Item extends RestEntity {
   @Column()
   description: string;
 
