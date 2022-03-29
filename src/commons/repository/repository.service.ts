@@ -1,7 +1,13 @@
 import { UseFilters } from '@nestjs/common';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { isUUID, validate } from 'class-validator';
-import { DeepPartial, FindOptionsWhere, Raw, Repository } from 'typeorm';
+import {
+  DeepPartial,
+  FindManyOptions,
+  FindOptionsWhere,
+  Raw,
+  Repository,
+} from 'typeorm';
 import { ServiceException } from '../exceptions/service.exception';
 import { ApiExceptionFilter } from '../filters/api-exception.filter';
 import { PaginatedResponse } from '../interfaces/paginated-response';
@@ -30,18 +36,22 @@ export abstract class RepositoryService<
   }
 
   private buildOptionsToFilter(
-    options?: PaginatedServiceFilters<T>,
-  ): PaginatedServiceFilters<T> {
-    if (options?.searchFields?.length && options?.search?.length) {
-      options.where = {};
-      options.searchFields.forEach((field) => {
-        options.where[field] = Raw((v) => `LOWER(${v}) Like LOWER(:value)`, {
-          value: `%${options.search}%`,
+    filters?: PaginatedServiceFilters<T>,
+  ): FindManyOptions<any> {
+    const where = {};
+    if (filters?.search) {
+      Object.keys(filters?.search).forEach((field) => {
+        where[field] = Raw((v) => `LOWER(${v}) Like LOWER(:value)`, {
+          value: `%${filters?.search[field]}%`,
         });
       });
-      delete options.search;
     }
-    return options;
+
+    return {
+      take: filters?.take,
+      skip: filters?.skip,
+      where,
+    };
   }
 
   abstract buildPartial(dto: T_DTO): Promise<DeepPartial<T>>;
@@ -64,16 +74,16 @@ export abstract class RepositoryService<
   }
 
   async filter(
-    options?: PaginatedServiceFilters<T>,
+    filters?: PaginatedServiceFilters<T>,
   ): Promise<PaginatedResponse<T>> {
-    const opt = this.buildOptionsToFilter(options);
-    const [data, total] = await this.repository.findAndCount(opt);
+    const options = this.buildOptionsToFilter(filters);
+    const [data, total] = await this.repository.findAndCount(options);
 
     const res: PaginatedResponse<T> = {
       data,
       total,
-      limit: opt?.take,
-      offset: opt?.skip,
+      limit: options?.take,
+      offset: options?.skip,
     };
     return res;
   }
