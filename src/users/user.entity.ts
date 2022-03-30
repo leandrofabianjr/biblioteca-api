@@ -1,4 +1,6 @@
+import { Author } from 'src/authors/author.entity';
 import { RepositoryEntity } from 'src/commons/repository/repository-entity';
+import { Genre } from 'src/genres/genre.entity';
 import { Item } from 'src/items/item.entity';
 import { Location } from 'src/locations/location.entity';
 import { Publisher } from 'src/publishers/publisher.entity';
@@ -26,4 +28,10 @@ export class User extends RepositoryEntity {
 
   @OneToMany(() => Publisher, (publisher) => publisher.owner)
   publishers: any;
+
+  @OneToMany(() => Genre, (genre) => genre.owner)
+  genres: any;
+
+  @OneToMany(() => Author, (author) => author.owner)
+  authors: any;
 }

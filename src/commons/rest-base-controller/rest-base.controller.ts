@@ -52,7 +52,7 @@ export abstract class RestBaseController<
     @Res() res: Response,
     @Req() req: { user?: User },
   ) {
-    dto.ownerUuid = req.user.uuid;
+    dto.ownerUuid = req.user?.uuid;
     const item = await this.service.create(dto as any);
     res.status(HttpStatus.CREATED).json(item);
   }
