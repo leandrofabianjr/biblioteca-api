@@ -42,8 +42,10 @@ export abstract class RestBaseController<
   async fetch(
     @Query(new ParsePaginatedSearchPipePipe())
     params: PaginatedServiceFilters<T>,
+    @Res() res: Response,
   ) {
-    return await this.service.filter(params);
+    const data = await this.service.filter(params);
+    res.status(HttpStatus.OK).json(data);
   }
 
   @Post('')

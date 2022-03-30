@@ -7,6 +7,10 @@ import { Genre } from './genre.entity';
 
 @Injectable()
 export class GenresService extends RepositoryService<Genre, CreateGenreDto> {
+  readonly searchFieldsStructure = {
+    description: (term) => term,
+  };
+
   constructor(@InjectRepository(Genre) repository: Repository<Genre>) {
     super(repository);
   }

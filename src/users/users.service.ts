@@ -7,6 +7,10 @@ import { User } from './user.entity';
 
 @Injectable()
 export class UsersService extends RepositoryService<User, CreateUserDto> {
+  searchFieldsStructure = {
+    name: (term) => term,
+  };
+
   constructor(@InjectRepository(User) repository: Repository<User>) {
     super(repository);
   }

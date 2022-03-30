@@ -10,6 +10,10 @@ export class LocationsService extends RepositoryService<
   Location,
   CreateLocationDto
 > {
+  readonly searchFieldsStructure = {
+    description: (term) => term,
+  };
+
   constructor(@InjectRepository(Location) repository: Repository<Location>) {
     super(repository);
   }

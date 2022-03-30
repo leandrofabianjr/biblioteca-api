@@ -10,6 +10,10 @@ export class PublishersService extends RepositoryService<
   Publisher,
   CreatePublisherDto
 > {
+  readonly searchFieldsStructure = {
+    name: (term) => term,
+  };
+
   constructor(@InjectRepository(Publisher) repository: Repository<Publisher>) {
     super(repository);
   }

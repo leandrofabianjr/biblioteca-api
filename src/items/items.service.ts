@@ -7,6 +7,10 @@ import { Item } from './item.entity';
 
 @Injectable()
 export class ItemsService extends RepositoryService<Item, CreateItemDto> {
+  searchFieldsStructure = {
+    description: (term) => term,
+  };
+
   constructor(@InjectRepository(Item) repository: Repository<Item>) {
     super(repository);
   }

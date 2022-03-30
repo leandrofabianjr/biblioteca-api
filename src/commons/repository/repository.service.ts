@@ -4,6 +4,7 @@ import { isUUID, validate } from 'class-validator';
 import {
   DeepPartial,
   FindManyOptions,
+  FindOperator,
   FindOptionsWhere,
   Raw,
   Repository,
@@ -19,6 +20,10 @@ export abstract class RepositoryService<
   T extends RepositoryEntity,
   T_DTO extends object,
 > {
+  abstract readonly searchFieldsStructure: {
+    [name: string]: (term: FindOperator<T>) => any;
+  };
+
   constructor(public repository: Repository<T>) {}
 
   abstract dtoConstructor: ClassConstructor<T_DTO>;
@@ -35,17 +40,25 @@ export abstract class RepositoryService<
     return dto;
   }
 
+  caseInsensitiveSearch(term: string): FindOperator<T> {
+    return Raw((v) => `LOWER(${v}) Like LOWER(:value)`, {
+      value: `%${term}%`,
+    });
+  }
+
   private buildOptionsToFilter(
     filters?: PaginatedServiceFilters<T>,
   ): FindManyOptions<any> {
     const where = {};
-    if (filters?.search) {
-      Object.keys(filters?.search).forEach((field) => {
-        where[field] = Raw((v) => `LOWER(${v}) Like LOWER(:value)`, {
-          value: `%${filters?.search[field]}%`,
-        });
-      });
-    }
+    const search = JSON.parse(filters?.search ?? '{}');
+
+    Object.keys(search).forEach((field) => {
+      if (this.searchFieldsStructure.hasOwnProperty(field)) {
+        where[field] = this.searchFieldsStructure[field](
+          this.caseInsensitiveSearch(search[field]),
+        );
+      }
+    });
 
     return {
       take: filters?.take,

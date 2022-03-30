@@ -7,6 +7,10 @@ import { CreateAuthorDto } from './create-author.dto';
 
 @Injectable()
 export class AuthorsService extends RepositoryService<Author, CreateAuthorDto> {
+  readonly searchFieldsStructure = {
+    name: (term) => term,
+  };
+
   constructor(@InjectRepository(Author) repository: Repository<Author>) {
     super(repository);
   }
