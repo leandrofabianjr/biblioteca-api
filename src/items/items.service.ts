@@ -7,8 +7,13 @@ import { Item } from './item.entity';
 
 @Injectable()
 export class ItemsService extends RepositoryService<Item, CreateItemDto> {
-  searchFieldsStructure = {
+  readonly searchFieldsStructure = {
     description: (term) => term,
+    year: (term) => term,
+    location: (term) => ({ description: term }),
+    author: (term) => ({ name: term }),
+    genre: (term) => ({ description: term }),
+    publisher: (term) => ({ name: term }),
   };
 
   constructor(@InjectRepository(Item) repository: Repository<Item>) {
@@ -20,9 +25,12 @@ export class ItemsService extends RepositoryService<Item, CreateItemDto> {
   async buildPartial(dto: CreateItemDto): Promise<Item> {
     const item = new Item();
     item.description = dto.description;
-    item.ownerUuid = dto.ownerUuid;
     item.year = dto.year;
-    item.description = dto.location;
+    item.ownerUuid = dto.ownerUuid;
+    item.locationUuid = dto.location;
+    item.authorsUuids = dto.authors;
+    item.genresUuids = dto.genres;
+    item.publishersUuids = dto.publishers;
     return item;
   }
 }

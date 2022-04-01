@@ -55,8 +55,8 @@ export abstract class RestBaseController<
     @Req() req: { user?: User },
   ) {
     dto.ownerUuid = req.user?.uuid;
-    const item = await this.service.create(dto as any);
-    res.status(HttpStatus.CREATED).json(item);
+    const obj = await this.service.create(dto as any);
+    res.status(HttpStatus.CREATED).json(obj);
   }
 
   @Put(':uuid')
@@ -67,8 +67,8 @@ export abstract class RestBaseController<
     @Req() req,
   ) {
     await this.checkIfExists(uuid, req.user.uuid);
-    const updatedObj = await this.service.edit(uuid, body);
-    res.status(HttpStatus.OK).json(updatedObj);
+    const obj = await this.service.edit(uuid, body);
+    res.status(HttpStatus.OK).json(obj);
   }
 
   @Delete(':uuid')

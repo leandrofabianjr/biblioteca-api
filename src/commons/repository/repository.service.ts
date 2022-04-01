@@ -40,7 +40,7 @@ export abstract class RepositoryService<
     return dto;
   }
 
-  caseInsensitiveSearch(term: string): FindOperator<T> {
+  private caseInsensitiveSearch(term: string): FindOperator<T> {
     return Raw((v) => `LOWER(${v}) Like LOWER(:value)`, {
       value: `%${term}%`,
     });
@@ -101,8 +101,9 @@ export abstract class RepositoryService<
     return res;
   }
 
-  save(model: T): Promise<T> {
-    return this.repository.save(model as DeepPartial<T>)[0];
+  async save(model: DeepPartial<T>): Promise<T> {
+    const { uuid } = await this.repository.save(model);
+    return this.get(uuid);
   }
 
   async create(data: T_DTO): Promise<T> {
@@ -112,7 +113,7 @@ export abstract class RepositoryService<
 
     const model = await this.buildPartial(dto);
 
-    return await this.repository.save(model);
+    return await this.save(model);
   }
 
   async edit(uuid: string, data: T_DTO) {
@@ -122,7 +123,7 @@ export abstract class RepositoryService<
 
     const model = await this.buildPartial(dto);
     model.uuid = uuid;
-    return this.repository.save(model);
+    return await this.save(model);
   }
 
   async remove(uuid: string): Promise<{ affected: number }> {
