@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Author } from 'src/authors/author.entity';
 import { RepositoryService } from 'src/commons/repository/repository.service';
+import { Genre } from 'src/genres/genre.entity';
+import { Location } from 'src/locations/location.entity';
+import { Publisher } from 'src/publishers/publisher.entity';
 import { Repository } from 'typeorm';
 import { CreateItemDto } from './create-item.dto';
 import { Item } from './item.entity';
@@ -27,10 +31,10 @@ export class ItemsService extends RepositoryService<Item, CreateItemDto> {
     item.description = dto.description;
     item.year = dto.year;
     item.ownerUuid = dto.ownerUuid;
-    item.locationUuid = dto.location;
-    item.authorsUuids = dto.authors;
-    item.genresUuids = dto.genres;
-    item.publishersUuids = dto.publishers;
+    item.location = { uuid: dto.location } as Location;
+    item.authors = dto.authors?.map((uuid) => ({ uuid } as Author));
+    item.genres = dto.genres?.map((uuid) => ({ uuid } as Genre));
+    item.publishers = dto.publishers?.map((uuid) => ({ uuid } as Publisher));
     return item;
   }
 }

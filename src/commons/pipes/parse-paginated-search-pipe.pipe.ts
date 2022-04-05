@@ -1,30 +1,18 @@
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
+import { PaginatedServiceFilters } from '../interfaces/paginated-service-filters';
 
 @Injectable()
 export class ParsePaginatedSearchPipePipe implements PipeTransform {
-  readonly _possibleParams = ['search', 'limit', 'offset'];
+  readonly _possibleParams = ['search', 'limit', 'offset', 'sort'];
 
-  transform(value: any, metadata: ArgumentMetadata) {
+  transform(value: any, metadata: ArgumentMetadata): PaginatedServiceFilters {
     if (metadata?.type != 'query') return {};
 
-    Object.keys(value).forEach((key) => {
-      if (!this._possibleParams.includes(key)) {
-        delete value[key];
-        return;
-      }
-
-      switch (key) {
-        case 'limit':
-          value.take = value.limit;
-          delete value['limit'];
-          break;
-        case 'offset':
-          value.skip = value.offset;
-          delete value['offset'];
-          break;
-      }
-    });
-
-    return value;
+    return {
+      limit: value?.limit ? +value.limit : 10,
+      offset: +value?.offset,
+      search: value?.search,
+      sort: value?.sort,
+    };
   }
 }

@@ -38,10 +38,17 @@ export abstract class RestBaseController<
     }
   }
 
+  @Get(':uuid')
+  async get(@Param('uuid') uuid: string, @Res() res: Response, @Req() req) {
+    await this.checkIfExists(uuid, req.user.uuid);
+    const obj = await this.service.get(uuid);
+    res.status(HttpStatus.OK).json(obj);
+  }
+
   @Get('')
   async fetch(
     @Query(new ParsePaginatedSearchPipePipe())
-    params: PaginatedServiceFilters<T>,
+    params: PaginatedServiceFilters,
     @Res() res: Response,
   ) {
     const data = await this.service.filter(params);
@@ -62,12 +69,13 @@ export abstract class RestBaseController<
   @Put(':uuid')
   async update(
     @Param('uuid') uuid: string,
-    @Body() body: T_DTO,
+    @Body() dto: T_DTO,
     @Res() res: Response,
     @Req() req,
   ) {
     await this.checkIfExists(uuid, req.user.uuid);
-    const obj = await this.service.edit(uuid, body);
+    dto.ownerUuid = req.user?.uuid;
+    const obj = await this.service.edit(uuid, dto);
     res.status(HttpStatus.OK).json(obj);
   }
 

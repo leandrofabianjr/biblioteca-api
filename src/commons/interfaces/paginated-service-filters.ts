@@ -1,5 +1,6 @@
-import { FindManyOptions } from 'typeorm';
-
-export interface PaginatedServiceFilters<T> extends FindManyOptions<T> {
+export interface PaginatedServiceFilters {
   search?: any;
+  limit?: number;
+  offset?: number;
+  sort?: string;
 }

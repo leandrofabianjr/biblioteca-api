@@ -47,7 +47,7 @@ export abstract class RepositoryService<
   }
 
   private buildOptionsToFilter(
-    filters?: PaginatedServiceFilters<T>,
+    filters?: PaginatedServiceFilters,
   ): FindManyOptions<any> {
     const where = {};
     const search = JSON.parse(filters?.search ?? '{}');
@@ -60,9 +60,18 @@ export abstract class RepositoryService<
       }
     });
 
+    let order;
+    if (filters?.sort) {
+      const sort = filters.sort;
+      const isDesc = sort[0] == '-';
+      const column = isDesc ? sort.substring(1) : sort;
+      order = { [column]: isDesc ? 'desc' : 'asc' };
+    }
+
     return {
-      take: filters?.take,
-      skip: filters?.skip,
+      take: filters?.limit,
+      skip: filters?.offset,
+      order,
       where,
     };
   }
@@ -87,9 +96,10 @@ export abstract class RepositoryService<
   }
 
   async filter(
-    filters?: PaginatedServiceFilters<T>,
+    filters?: PaginatedServiceFilters,
   ): Promise<PaginatedResponse<T>> {
     const options = this.buildOptionsToFilter(filters);
+
     const [data, total] = await this.repository.findAndCount(options);
 
     const res: PaginatedResponse<T> = {
@@ -108,19 +118,14 @@ export abstract class RepositoryService<
 
   async create(data: T_DTO): Promise<T> {
     const dto = await this.validateDto(data);
-
     await this.validateBeforeCreate(dto);
-
     const model = await this.buildPartial(dto);
-
     return await this.save(model);
   }
 
   async edit(uuid: string, data: T_DTO) {
     const dto = await this.validateDto(data);
-
     await this.validateBeforeEdit(uuid, dto);
-
     const model = await this.buildPartial(dto);
     model.uuid = uuid;
     return await this.save(model);
