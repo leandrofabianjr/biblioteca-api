@@ -10,11 +10,16 @@ import { LocationsModule } from './locations/locations.module';
 import { PublishersModule } from './publishers/publishers.module';
 import { GenresModule } from './genres/genres.module';
 import { AuthorsModule } from './authors/authors.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
-    AuthModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'front'),
+    }),
     TypeOrmModule.forRoot(DB_CONFIG),
+    AuthModule,
     UsersModule,
     ItemsModule,
     LocationsModule,

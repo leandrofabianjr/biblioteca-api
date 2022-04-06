@@ -13,7 +13,7 @@ import { GoogleStrategy } from './google.strategy';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRE_TIME },
+      signOptions: { expiresIn: process.env.JWT_EXPIRE_TIME ?? '24h' },
     }),
   ],
   providers: [AuthService, JwtStrategy, GoogleStrategy],
