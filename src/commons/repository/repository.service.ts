@@ -5,7 +5,6 @@ import {
   DeepPartial,
   FindManyOptions,
   FindOperator,
-  FindOptionsWhere,
   Raw,
   Repository,
 } from 'typeorm';
@@ -92,7 +91,7 @@ export abstract class RepositoryService<
     if (!isUUID(uuid)) {
       return new Promise((resolve) => resolve(null));
     }
-    return this.repository.findOneBy({ uuid } as FindOptionsWhere<T>);
+    return this.repository.findOne(uuid);
   }
 
   async filter(

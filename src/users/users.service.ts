@@ -27,6 +27,6 @@ export class UsersService extends RepositoryService<User, CreateUserDto> {
   }
 
   findOneByEmail(email: any): Promise<User> {
-    return this.repository.findOneBy({ email });
+    return this.repository.findOne({ email });
   }
 }

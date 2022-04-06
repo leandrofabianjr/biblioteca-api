@@ -14,7 +14,6 @@ import { Response } from 'express';
 import { PaginatedServiceFilters } from 'src/commons/interfaces/paginated-service-filters';
 import { ParsePaginatedSearchPipePipe } from 'src/commons/pipes/parse-paginated-search-pipe.pipe';
 import { User } from 'src/users/user.entity';
-import { FindOptionsWhere } from 'typeorm';
 import { ServiceException } from '../exceptions/service.exception';
 import { RepositoryDto } from '../repository/repository.dto';
 import { RepositoryService } from '../repository/repository.service';
@@ -27,10 +26,9 @@ export abstract class RestBaseController<
   constructor(protected service: RepositoryService<T, T_DTO>) {}
 
   private async checkIfExists(uuid: string, ownerUuid: string) {
-    const obj = await this.service.repository.findOneBy({
-      uuid,
-      ownerUuid,
-    } as FindOptionsWhere<T>);
+    const obj = await this.service.repository.findOne(uuid, {
+      where: { ownerUuid },
+    });
 
     if (!obj) {
       const message = 'Este objeto não existe.';
