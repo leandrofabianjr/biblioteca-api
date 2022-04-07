@@ -14,4 +14,9 @@ export const DB_CONFIG: TypeOrmModuleOptions = process.env.DEBUG
       username: process.env.DB_USER,
       password: process.env.DB_USER_PASS,
       database: process.env.DB_NAME,
+      extra: {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      },
     };
