@@ -36,4 +36,4 @@ Set-Location $DIST_DIR_PATH
 # git commit -m "Commit gerado por script"
 # git remote add origin https://github.com/leandrofabianjr/biblioteca-dist.git
 # git branch -M main
-# git push -u origin main
+# git push -f origin main
