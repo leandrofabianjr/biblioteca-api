@@ -9,6 +9,7 @@ export const DB_CONFIG: TypeOrmModuleOptions = process.env.DEBUG
     }
   : {
       type: 'postgres',
+      synchronize: process.env.DB_SYNC == 'true',
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
       username: process.env.DB_USER,
