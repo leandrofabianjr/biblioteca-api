@@ -31,9 +31,9 @@ Copy-Item -Path ".\dist\biblioteca" -Destination "$($DIST_DIR_PATH)\front" -Pass
 
 # # Subindo para o github
 Set-Location $DIST_DIR_PATH
-# git init
-# git add .
-# git commit -m "Commit gerado por script"
-# git remote add origin https://github.com/leandrofabianjr/biblioteca-dist.git
-# git branch -M main
-# git push -f origin main
+git init
+git add .
+git commit -m "Commit gerado por script"
+git remote add origin https://github.com/leandrofabianjr/biblioteca-dist.git
+git branch -M main
+git push -f origin main
