@@ -46,10 +46,11 @@ export abstract class RestBaseController<
   @Get('')
   async fetch(
     @Query(new ParsePaginatedSearchPipePipe())
-    params: PaginatedServiceFilters,
+    filters: PaginatedServiceFilters,
     @Res() res: Response,
+    @Req() req: { user?: User },
   ) {
-    const data = await this.service.filter(params);
+    const data = await this.service.filter(req.user, filters);
     res.status(HttpStatus.OK).json(data);
   }
 
@@ -59,7 +60,7 @@ export abstract class RestBaseController<
     @Res() res: Response,
     @Req() req: { user?: User },
   ) {
-    dto.ownerUuid = req.user?.uuid;
+    dto.ownerUuid = req.user.uuid;
     const obj = await this.service.create(dto as any);
     res.status(HttpStatus.CREATED).json(obj);
   }
@@ -72,7 +73,7 @@ export abstract class RestBaseController<
     @Req() req,
   ) {
     await this.checkIfExists(uuid, req.user.uuid);
-    dto.ownerUuid = req.user?.uuid;
+    dto.ownerUuid = req.user.uuid;
     const obj = await this.service.edit(uuid, dto);
     res.status(HttpStatus.OK).json(obj);
   }

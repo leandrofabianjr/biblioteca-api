@@ -1,6 +1,7 @@
 import { UseFilters } from '@nestjs/common';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { isUUID, validate } from 'class-validator';
+import { User } from 'src/users/user.entity';
 import {
   DeepPartial,
   FindManyOptions,
@@ -46,9 +47,10 @@ export abstract class RepositoryService<
   }
 
   private buildOptionsToFilter(
+    owner: User,
     filters?: PaginatedServiceFilters,
   ): FindManyOptions<any> {
-    const where = {};
+    const where = { owner };
     const search = JSON.parse(filters?.search ?? '{}');
 
     Object.keys(search).forEach((field) => {
@@ -95,9 +97,10 @@ export abstract class RepositoryService<
   }
 
   async filter(
+    owner: User,
     filters?: PaginatedServiceFilters,
   ): Promise<PaginatedResponse<T>> {
-    const options = this.buildOptionsToFilter(filters);
+    const options = this.buildOptionsToFilter(owner, filters);
 
     const [data, total] = await this.repository.findAndCount(options);
 
