@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RepositoryService } from 'src/commons/repository/repository.service';
 import { Repository } from 'typeorm';
@@ -28,5 +28,12 @@ export class UsersService extends RepositoryService<User, CreateUserDto> {
 
   findOneByEmail(email: any): Promise<User> {
     return this.repository.findOne({ email });
+  }
+
+  async getPhotoById(userUuid: number): Promise<string> {
+    const user = await this.repository.findOne(userUuid);
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+
+    return user.profile_picture_url ?? '';
   }
 }
