@@ -137,4 +137,10 @@ export abstract class RepositoryService<
     const result = await this.repository.softDelete(uuid);
     return { affected: result.affected };
   }
+
+  countByOwner(owner: User): Promise<number> {
+    return this.repository.count({
+      where: { ownerUuid: owner.uuid },
+    });
+  }
 }

@@ -24,14 +24,14 @@ export class User extends RepositoryEntity {
   items: any;
 
   @OneToMany(() => Location, (location) => location.owner)
-  locations: any;
+  locations: Location[];
 
   @OneToMany(() => Publisher, (publisher) => publisher.owner)
-  publishers: any;
+  publishers: Publisher[];
 
   @OneToMany(() => Genre, (genre) => genre.owner)
-  genres: any;
+  genres: Genre[];
 
   @OneToMany(() => Author, (author) => author.owner)
-  authors: any;
+  authors: Author[];
 }

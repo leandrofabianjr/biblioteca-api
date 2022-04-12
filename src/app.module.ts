@@ -12,6 +12,7 @@ import { GenresModule } from './genres/genres.module';
 import { AuthorsModule } from './authors/authors.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { MeModule } from './me/me.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { join } from 'path';
     PublishersModule,
     GenresModule,
     AuthorsModule,
+    MeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
