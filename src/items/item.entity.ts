@@ -4,15 +4,7 @@ import { Genre } from 'src/genres/genre.entity';
 import { Location } from 'src/locations/location.entity';
 import { Publisher } from 'src/publishers/publisher.entity';
 import { User } from 'src/users/user.entity';
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  ManyToMany,
-  JoinTable,
-  RelationId,
-  JoinColumn,
-} from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
 @Entity()
 export class Item extends RestEntity {

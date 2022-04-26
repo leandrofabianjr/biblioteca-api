@@ -11,7 +11,7 @@ export class ParsePaginatedSearchPipePipe implements PipeTransform {
     return {
       limit: value?.limit ? +value.limit : 10,
       offset: +value?.offset,
-      search: value?.search,
+      search: !!value?.search ? JSON.parse(value.search) : undefined,
       sort: value?.sort,
     };
   }

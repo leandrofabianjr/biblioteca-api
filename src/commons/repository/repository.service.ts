@@ -40,23 +40,26 @@ export abstract class RepositoryService<
     return dto;
   }
 
-  private caseInsensitiveSearch(term: string): FindOperator<T> {
-    return Raw((v) => `LOWER(${v}) Like LOWER(:value)`, {
+  protected caseInsensitiveSearchOperator(field: string): string {
+    return `LOWER(${field}) Like LOWER(:value)`;
+  }
+
+  protected caseInsensitiveSearch(term: string): FindOperator<T> {
+    return Raw((v) => this.caseInsensitiveSearchOperator(v), {
       value: `%${term}%`,
     });
   }
 
-  private buildOptionsToFilter(
+  protected buildOptionsToFilter(
     owner: User,
     filters?: PaginatedServiceFilters,
   ): FindManyOptions<any> {
     const where = { owner };
-    const search = JSON.parse(filters?.search ?? '{}');
 
-    Object.keys(search).forEach((field) => {
+    Object.keys(filters?.search ?? {}).forEach((field) => {
       if (this.searchFieldsStructure.hasOwnProperty(field)) {
         where[field] = this.searchFieldsStructure[field](
-          this.caseInsensitiveSearch(search[field]),
+          this.caseInsensitiveSearch(filters.search[field]),
         );
       }
     });
