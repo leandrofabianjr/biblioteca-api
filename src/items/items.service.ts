@@ -8,7 +8,7 @@ import { Genre } from 'src/genres/genre.entity';
 import { Location } from 'src/locations/location.entity';
 import { Publisher } from 'src/publishers/publisher.entity';
 import { User } from 'src/users/user.entity';
-import { OrderByCondition, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateItemDto } from './create-item.dto';
 import { Item } from './item.entity';
 
@@ -22,6 +22,8 @@ export class ItemsService extends RepositoryService<Item, CreateItemDto> {
     genres: (term) => ({ description: term }),
     publishers: (term) => ({ name: term }),
   };
+
+  readonly orderByColumns = ['description', 'createdAt', 'year'];
 
   constructor(@InjectRepository(Item) repository: Repository<Item>) {
     super(repository);
@@ -45,31 +47,39 @@ export class ItemsService extends RepositoryService<Item, CreateItemDto> {
     owner: User,
     filters?: PaginatedServiceFilters,
   ): Promise<PaginatedResponse<Item>> {
-    const options = this.buildOptionsToFilter(owner, filters);
-
     const query = this.repository
       .createQueryBuilder('i')
-      .leftJoinAndSelect('i.location', 'l')
-      .leftJoinAndSelect('i.authors', 'a')
-      .leftJoinAndSelect('i.genres', 'g')
-      .leftJoinAndSelect('i.publishers', 'p')
-      .skip(options.skip)
-      .take(options.take)
-      .orderBy(options.order as OrderByCondition)
-      .where({ owner: options.where.owner });
+      .where({ owner })
+      .skip(filters?.offset)
+      .take(filters?.limit);
+
+    const columns = [
+      { name: 'location', alias: 'l', column: 'l.description' },
+      { name: 'authors', alias: 'a', column: 'a.name' },
+      { name: 'genres', alias: 'g', column: 'g.description' },
+      { name: 'publishers', alias: 'p', column: 'p.name' },
+    ];
+
+    columns.forEach((c) => {
+      query.leftJoinAndSelect('i.' + c.name, c.alias);
+    });
+
+    const orderBy = this.getOrderByData(filters.sort);
+    if (orderBy?.sort) {
+      query.orderBy('i.' + orderBy.sort, orderBy.order);
+    }
 
     Object.keys(filters?.search ?? {}).forEach((field) => {
       if (this.searchFieldsStructure.hasOwnProperty(field)) {
-        const column = {
-          location: 'l.description',
-          authors: 'a.name',
-          genres: 'g.description',
-          publishers: 'p.name',
-        }[field];
+        const column = columns
+          .concat({ name: 'description', column: 'i.description', alias: '' })
+          .find((c) => c.name == field)?.column;
 
-        query.andWhere(this.caseInsensitiveSearchOperator(column), {
-          value: `%${filters?.search[field]}%`,
-        });
+        if (column) {
+          query.andWhere(this.caseInsensitiveSearchOperator(column), {
+            value: `%${filters?.search[field]}%`,
+          });
+        }
       }
     });
 
@@ -77,8 +87,8 @@ export class ItemsService extends RepositoryService<Item, CreateItemDto> {
     const res: PaginatedResponse<Item> = {
       data,
       total,
-      limit: options?.take,
-      offset: options?.skip,
+      limit: filters?.limit,
+      offset: filters?.offset,
     };
     return res;
   }

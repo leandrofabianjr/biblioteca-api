@@ -24,6 +24,8 @@ export abstract class RepositoryService<
     [name: string]: (term: FindOperator<T>) => any;
   };
 
+  orderByColumns: string[] = [];
+
   constructor(public repository: Repository<T>) {}
 
   abstract dtoConstructor: ClassConstructor<T_DTO>;
@@ -50,6 +52,20 @@ export abstract class RepositoryService<
     });
   }
 
+  protected getOrderByData(sort?: any): {
+    sort: string;
+    order: 'ASC' | 'DESC';
+  } {
+    if (!sort || !Object.keys(sort)?.length) return undefined;
+
+    const isDesc = sort[0] == '-';
+    const column = isDesc ? sort.substring(1) : sort;
+
+    if (!this.orderByColumns.includes(column)) return undefined;
+
+    return { sort: column, order: isDesc ? 'ASC' : 'DESC' };
+  }
+
   protected buildOptionsToFilter(
     owner: User,
     filters?: PaginatedServiceFilters,
@@ -64,13 +80,8 @@ export abstract class RepositoryService<
       }
     });
 
-    let order;
-    if (filters?.sort) {
-      const sort = filters.sort;
-      const isDesc = sort[0] == '-';
-      const column = isDesc ? sort.substring(1) : sort;
-      order = { [column]: isDesc ? 'desc' : 'asc' };
-    }
+    const orderBy = this.getOrderByData(filters.sort);
+    const order = orderBy ? { [orderBy.sort]: orderBy.order } : undefined;
 
     return {
       take: filters?.limit,
