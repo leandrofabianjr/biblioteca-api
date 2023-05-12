@@ -22,6 +22,7 @@ npm install
 nest build
 Copy-Item -Path ".\dist\" -Destination "$($DIST_DIR_PATH)\api" -PassThru -Recurse
 Copy-Item -Path ".\package.json" -Destination $DIST_DIR_PATH -PassThru
+Copy-Item -Path ".\vercel.json" -Destination $DIST_DIR_PATH -PassThru
 
 # Build do front-end
 Set-Location $FRONT_DIR_PATH
